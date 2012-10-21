@@ -45,7 +45,7 @@ namespace MinecraftWorldConverter
                             root.Childs = new List<NbtNode>();
                             //entities
                             NbtList entities = compound.GetValue<NbtList>("Entities");
-                            NbtList newEntities = new NbtList { Name = "Entities"};
+                            NbtList newEntities = new NbtList { Name = "Entities", TagId = entities.TagId};
                             root.Childs.Add(newEntities);
                             newEntities.Childs = new List<object>();
                             foreach (var item in entities.Childs)
@@ -59,8 +59,6 @@ namespace MinecraftWorldConverter
                                    newEntities.Childs.Add(item);
                                }
                             }
-
-                            root.Childs.Add(newEntities);
                             root.Childs.Add(compound.Childs.Single(a => a.Name == "Biomes"));
                             root.Childs.Add(compound.Childs.Single(a => a.Name == "LastUpdate"));
                             root.Childs.Add(compound.Childs.Single(a => a.Name == "xPos"));
@@ -69,7 +67,7 @@ namespace MinecraftWorldConverter
 
                             //tile entities
                             NbtList tileEntities = compound.GetValue<NbtList>("TileEntities");
-                            NbtList newTileEntities = new NbtList { Name = "TileEntities" };
+                            NbtList newTileEntities = new NbtList { Name = "TileEntities", TagId = tileEntities.TagId };
                             root.Childs.Add(newTileEntities);
                             newTileEntities.Childs = new List<object>();
                             foreach (var item in tileEntities.Childs)
@@ -88,6 +86,7 @@ namespace MinecraftWorldConverter
 
                             //tile entities
                             NbtList data = compound.GetValue<NbtList>("Sections");
+                            bool b = false;
                             foreach (var item in data.Childs)
                             {
                                 var list = item as List<NbtNode>;
@@ -96,14 +95,19 @@ namespace MinecraftWorldConverter
 
                                 if (locationY == y)
                                 {
-                                    NbtList newData = new NbtList { Name = "Section" };
-                                    newData.Childs = new List<object>();
+                                    b = true;
+                                    NbtCompound newData = new NbtCompound { Name = "Section" };
+                                    newData.Childs = new List<NbtNode>();
                                     foreach (var it in list)
                                     {
                                         newData.Childs.Add(it);
                                     }
                                     root.Childs.Add(newData);
                                 }
+                            }
+                            if (!b)
+                            {
+
                             }
 
                             writer.Write(x, (short)y, z, new NbtCompound { Childs = new List<NbtNode> { root } });

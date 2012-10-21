@@ -1,4 +1,5 @@
-﻿using MineServer.Map.Format;
+﻿using java.util.zip;
+using MineServer.Map.Format;
 using Pdelvo.Minecraft.Network;
 using System;
 using System.Collections.Generic;
@@ -66,7 +67,7 @@ namespace MinecraftWorldConverter
 
                 _filePointer.Seek(_headerSize + sectorPostion*_sectorSize, SeekOrigin.Begin);
                 _filePointer.Write(buffer.Length);
-                _filePointer.Write((byte) 1); //GZip Compression
+                _filePointer.Write((byte) 2); //Zlib Compression
                 _filePointer.Write(buffer);
                 _filePointer.Flush();
             }
@@ -100,18 +101,31 @@ namespace MinecraftWorldConverter
 
             return tail;
         }
-        private static byte[] Compress(byte[] gzip)
+        private static byte[] Compress(byte[] zlib)
         {
             // Create a GZIP stream with decompression mode.
             // ... Then create a buffer and write into while reading from the GZIP stream.
             using (MemoryStream memory = new MemoryStream())
-            using (GZipStream stream = new GZipStream(memory, CompressionMode.Compress))
             {
-                stream.Write(gzip, 0, gzip.Length);
-                stream.Flush();
-                stream.Close();
-                return memory.ToArray();
+                var def = new Deflater();
+                def.setInput(gzip);
+                def.finish();
+                var decompressStream = new MemoryStream();
+                int i = 0;
+                var buffer = new byte[1024 * 1024];
+                while ((i = def.deflate(buffer)) > 0)
+                {
+                    decompressStream.Write(buffer, 0, i);
+                }
+                return decompressStream.ToArray();
             }
+            //using (GZipStream stream = new GZipStream(memory, CompressionMode.Compress))
+            //{
+            //    stream.Write(gzip, 0, gzip.Length);
+            //    stream.Flush();
+            //    stream.Close();
+            //    return memory.ToArray();
+            //}
         }
     }
 }

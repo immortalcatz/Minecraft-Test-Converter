@@ -157,7 +157,7 @@ namespace MineServer.Map.Format
         private string _name;
         public override byte Type
         {
-            get { return 7; }
+            get { return 8; }
         }
 
         public override string Name

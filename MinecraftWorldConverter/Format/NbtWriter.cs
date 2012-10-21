@@ -102,7 +102,11 @@ namespace MineServer.Map.Format
                     break;
               
                 case 10:
-                    var subNodes = (NbtCompound)tag;
+                    NbtCompound subNodes;
+
+                    if (tag is NbtCompound)
+                        subNodes = (NbtCompound)tag;
+                    else subNodes = new NbtCompound { Childs = (List<NbtNode>)tag };
                     foreach (var nbtNode in subNodes.Childs)
                     {
                         WriteNode(zipped, nbtNode);
